@@ -6,6 +6,8 @@ Use **Tela cheia** para mostrar apenas a roleta, o resultado e os controles do s
 
 Cada resultado novo dispara confetes no modo normal e em tela cheia. Os confetes não reaparecem ao recarregar a página ou alternar o modo de exibição e são desativados quando o navegador está configurado para movimento reduzido.
 
+Ao girar, um rufar de tambores acelera até o resultado, seguido de uma fanfarra de comemoração. Os sons são sintetizados localmente com Web Audio, sem arquivos externos, e só começam depois de uma interação com o sorteador. O botão de alto-falante permite silenciar ou ativar o som, inclusive durante o giro; a preferência fica salva neste navegador. Ao ocultar a aba, o áudio é interrompido. Se o navegador não permitir áudio, o sorteio continua funcionando normalmente.
+
 ## Desenvolvimento
 
 Requer Node.js 24 e npm. Não precisa de banco de dados, chaves ou variáveis de ambiente.
@@ -42,6 +44,7 @@ Se já tiver Chromium instalado, pode usar `PLAYWRIGHT_CHROMIUM_EXECUTABLE=/cami
 - `src/roulette.ts`: seleção aleatória e validação dos dados locais.
 - `src/Confetti.tsx`: celebração de novos resultados.
 - `src/useWheelFullscreen.ts`: tela cheia, modo alternativo e navegação por teclado.
+- `src/rouletteAudio.ts` e `src/useRouletteAudio.ts`: percussão, fanfarra e controle dos sons.
 - `src/style.css`: layout responsivo.
 - `tests/roulette.spec.ts`: testes de interação no navegador.
 

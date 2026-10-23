@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import Confetti from './Confetti';
 import { useWheelFullscreen } from './useWheelFullscreen';
+import { useRouletteAudio } from './useRouletteAudio';
 import { COLORS, WHEEL_PALETTE, MAX_ENTRIES, MAX_LABEL, createEntries, loadState, randomIndex, targetRotation, type Entry, type Winner } from './roulette';
 
 const STORAGE_KEY = 'roleta:v1';
 const SPIN_MS = 4200;
 
-function Icon({ name, size = 20 }: { name: 'arrow' | 'plus' | 'trash' | 'shuffle' | 'clock' | 'check' | 'spark' | 'expand' | 'collapse'; size?: number }) {
+function Icon({ name, size = 20 }: { name: 'arrow' | 'plus' | 'trash' | 'shuffle' | 'clock' | 'check' | 'spark' | 'expand' | 'collapse' | 'volume' | 'mute'; size?: number }) {
   const paths = {
     arrow: <><path d="M4 12h16m-6-6 6 6-6 6" /></>,
     plus: <path d="M12 5v14M5 12h14" />,
@@ -17,6 +18,8 @@ function Icon({ name, size = 20 }: { name: 'arrow' | 'plus' | 'trash' | 'shuffle
     spark: <><path d="m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5Z" /></>,
     expand: <path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5" />,
     collapse: <path d="M3 8h5V3m8 0v5h5M8 21v-5H3m13 5v-5h5" />,
+    volume: <><path d="M11 4 6 8H3v8h3l5 4ZM15 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14" /></>,
+    mute: <><path d="M11 4 6 8H3v8h3l5 4ZM16 9l6 6m0-6-6 6" /></>,
   };
   return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{paths[name]}</svg>;
 }
@@ -59,6 +62,7 @@ export default function App() {
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const spinningRef = useRef(false);
   const { panel, toggleButton, fullscreen, toggleFullscreen } = useWheelFullscreen();
+  const { soundEnabled, toggleSound, startRoll, celebrate } = useRouletteAudio();
 
   useEffect(() => {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ entries, history, removeWinner })); setStorageError(false); }
@@ -84,12 +88,14 @@ export default function App() {
     const ms = matchMedia('(prefers-reduced-motion: reduce)').matches ? 150 : SPIN_MS;
     setDuration(ms); setSpinning(true); setWinner(null); setNotice('');
     setRotation(current => targetRotation(current, index, entries.length));
+    startRoll(ms + 80);
     timer.current = setTimeout(() => {
       const result = { id: crypto.randomUUID(), label: picked.label, date: new Date().toISOString() };
       setWinner(result);
       setHistory(current => [result, ...current].slice(0, 50));
       if (removeWinner) { setEntries(current => current.filter(entry => entry.id !== picked.id)); setRotation(0); }
       setSpinning(false); spinningRef.current = false;
+      celebrate();
     }, ms + 80);
   }
 
@@ -113,10 +119,10 @@ export default function App() {
       <div className="workspace">
         <section ref={panel} className={`wheel-card${fullscreen ? ' is-fullscreen' : ''}`} aria-label="Sorteador" role={fullscreen ? 'dialog' : undefined} aria-modal={fullscreen ? true : undefined}>
           <Confetti celebrationId={winner?.id ?? null} />
-          <div className="card-top"><img className="fullscreen-logo" src="/labtour-logo.png" width="120" height="54" alt="LabTour" /><span className="section-label">SUA ROLETA</span><div className="wheel-tools"><span className="live-badge"><span className="status-dot" />{spinning ? 'Sorteando' : 'Tudo pronto'}</span><button ref={toggleButton} className="fullscreen-button" onClick={toggleFullscreen} aria-expanded={fullscreen}><Icon name={fullscreen ? 'collapse' : 'expand'} size={16} />{fullscreen ? 'Sair da tela cheia' : 'Tela cheia'}</button></div></div>
+          <div className="card-top"><img className="fullscreen-logo" src="/labtour-logo.png" width="120" height="54" alt="LabTour" /><span className="section-label">SUA ROLETA</span><div className="wheel-tools"><span className="live-badge"><span className="status-dot" />{spinning ? 'Sorteando' : 'Tudo pronto'}</span><button className="sound-button" onClick={toggleSound} aria-label={soundEnabled ? 'Silenciar sons' : 'Ativar sons'} title={soundEnabled ? 'Som ligado — silenciar' : 'Som desligado — ativar'} aria-pressed={soundEnabled}><Icon name={soundEnabled ? 'volume' : 'mute'} size={17} /></button><button ref={toggleButton} className="fullscreen-button" onClick={toggleFullscreen} aria-expanded={fullscreen}><Icon name={fullscreen ? 'collapse' : 'expand'} size={16} />{fullscreen ? 'Sair da tela cheia' : 'Tela cheia'}</button></div></div>
           <Wheel entries={entries} rotation={rotation} spinning={spinning} duration={duration} />
           <div className="result" aria-live="polite" aria-atomic="true">
-            {winner ? <><span className="result-caption">A SORTE ESCOLHEU</span><strong className="winner-label">{winner.label} <Icon name="spark" size={22} /></strong></> : <><strong>{spinning ? 'Quem será que vai ganhar?' : 'Sua próxima escolha está a um giro.'}</strong><span>{spinning ? 'Aguarde a roleta parar…' : 'Todas as opções têm a mesma chance.'}</span></>}
+            {winner ? <><span className="result-caption">A SORTE ESCOLHEU</span><strong className="winner-label">{winner.label} <Icon name="spark" size={22} /></strong></> : <><strong>{spinning ? 'Quem será que vai ganhar?' : 'Tudo pronto para o próximo sorteio!'}</strong><span>{spinning ? 'Aguarde a roleta parar…' : 'Todas as opções têm a mesma chance.'}</span></>}
           </div>
           <button className="spin-button" onClick={spin} disabled={spinning || entries.length < 2}><Icon name="spark" />{spinning ? 'Girando…' : winner ? 'Girar novamente' : 'Girar a roleta'}{!spinning && <Icon name="arrow" />}</button>
           <p className="wheel-footnote">{entries.length < 2 ? 'Adicione pelo menos 2 opções para sortear.' : `${entries.length} opções · ${new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 }).format(100 / entries.length)}% de chance para cada uma`}</p>

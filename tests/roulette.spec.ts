@@ -16,6 +16,8 @@ test('sorteia em tela cheia nativa, celebra somente no resultado e preserva o es
   await page.keyboard.press('Tab');
   await expect(page.getByRole('button', { name: 'Girar a roleta', exact: true })).toBeFocused();
   await page.keyboard.press('Tab');
+  await expect(page.getByRole('button', { name: 'Silenciar sons' })).toBeFocused();
+  await page.keyboard.press('Tab');
   await expect(page.getByRole('button', { name: 'Sair da tela cheia' })).toBeFocused();
   await page.getByRole('button', { name: 'Girar a roleta', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Girando…' })).toBeDisabled();
