@@ -45,6 +45,22 @@ test('toca tambor durante o giro e comemoração ao revelar, sem áudio automát
   expect(await page.evaluate(() => window.rouletteAudioMeters.length)).toBe(0);
   await page.getByRole('button', { name: 'Girar a roleta', exact: true }).click();
   await expect.poll(() => amplitude(page)).toBeGreaterThan(0.001);
+  // Measure the rendered spectrum: the drum body should dominate the high hiss.
+  await expect.poll(() => page.evaluate(() => {
+    let bass = 0;
+    let treble = 0;
+    for (const meter of window.rouletteAudioMeters) {
+      const spectrum = new Float32Array(meter.frequencyBinCount);
+      meter.getFloatFrequencyData(spectrum);
+      for (let i = 0; i < spectrum.length; i++) {
+        const frequency = i * meter.context.sampleRate / meter.fftSize;
+        const power = 10 ** (spectrum[i] / 10);
+        if (frequency >= 40 && frequency <= 250) bass += power;
+        if (frequency >= 1000) treble += power;
+      }
+    }
+    return bass / Math.max(treble, 1e-20);
+  })).toBeGreaterThan(8);
   await expect(page.getByRole('button', { name: 'Girando…' })).toBeDisabled();
   await expect(page.locator('.winner-label')).toBeVisible({ timeout: 8000 });
   await expect.poll(() => amplitude(page)).toBeGreaterThan(0.001);

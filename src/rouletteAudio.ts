@@ -28,7 +28,7 @@ export class RouletteAudio {
     this.voices.set(source, cleanup);
   }
 
-  private percussion(at: number, duration: number, volume: number, cutoff: number) {
+  private percussion(at: number, duration: number, volume: number, cutoff: number, filterType: BiquadFilterType = 'highpass') {
     const context = this.context!;
     if (!this.noise) {
       this.noise = context.createBuffer(1, context.sampleRate * 2, context.sampleRate);
@@ -38,7 +38,7 @@ export class RouletteAudio {
     const source = context.createBufferSource();
     source.buffer = this.noise;
     const filter = context.createBiquadFilter();
-    filter.type = 'highpass';
+    filter.type = filterType;
     filter.frequency.value = cutoff;
     const envelope = context.createGain();
     envelope.gain.setValueAtTime(0.0001, at);
@@ -79,8 +79,8 @@ export class RouletteAudio {
         const progress = time / duration;
         const remaining = duration - time;
         const accent = beat % 4 === 0 ? 1 : 0.7;
-        this.percussion(start + time, Math.min(0.11, remaining), (0.16 + progress * 0.16) * accent, 1100);
-        this.tone(start + time, 180, Math.min(0.08, remaining), 0.18 * accent, true);
+        this.percussion(start + time, Math.min(0.11, remaining), (0.08 + progress * 0.08) * accent, 800, 'lowpass');
+        this.tone(start + time, 110, Math.min(0.13, remaining), 0.32 * accent, true);
         time += 0.09 - progress * 0.06;
       }
     } catch {
