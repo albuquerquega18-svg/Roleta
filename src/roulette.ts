@@ -1,7 +1,15 @@
 export const MAX_ENTRIES = 60;
 export const MAX_LABEL = 60;
 export const INITIAL_ENTRIES = ['Ana', 'Bruno', 'Carla', 'Diego', 'Elisa', 'Felipe'];
-export const COLORS = ['#bddd8d', '#8fc7b3', '#f0c577', '#edaa94', '#b9b1d6', '#8cb9cc'];
+export const WHEEL_PALETTE = [
+  { background: '#00b5ca', text: '#0c2f5b' },
+  { background: '#0c2f5b', text: '#ffffff' },
+  { background: '#42bd50', text: '#0c2f5b' },
+  { background: '#80dce6', text: '#0c2f5b' },
+  { background: '#2f689b', text: '#ffffff' },
+  { background: '#a6e4af', text: '#0c2f5b' },
+];
+export const COLORS = WHEEL_PALETTE.map(color => color.background);
 
 export type Entry = { id: string; label: string };
 export type Winner = { id: string; label: string; date: string };

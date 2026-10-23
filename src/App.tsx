@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Confetti from './Confetti';
 import { useWheelFullscreen } from './useWheelFullscreen';
-import { COLORS, MAX_ENTRIES, MAX_LABEL, createEntries, loadState, randomIndex, targetRotation, type Entry, type Winner } from './roulette';
+import { COLORS, WHEEL_PALETTE, MAX_ENTRIES, MAX_LABEL, createEntries, loadState, randomIndex, targetRotation, type Entry, type Winner } from './roulette';
 
 const STORAGE_KEY = 'roleta:v1';
 const SPIN_MS = 4200;
@@ -28,14 +28,14 @@ function Wheel({ entries, rotation, spinning, duration }: { entries: Entry[]; ro
     <div className="wheel-pointer" aria-hidden="true" />
     <svg className="wheel" viewBox="0 0 400 400" role="img" aria-label={`Roleta com ${n} opções`} style={{ transform: `rotate(${rotation}deg)`, transitionDuration: `${spinning ? duration : 0}ms` }}>
       <circle cx="200" cy="200" r="195" fill="#fff" />
-      {!n && <circle cx="200" cy="200" r="190" fill="#e8ede4" />}
+      {!n && <circle cx="200" cy="200" r="190" fill="#e6f3f7" />}
       {entries.map((entry, i) => {
         const start = i * 360 / n - 90;
         const end = (i + 1) * 360 / n - 90;
         const mid = (start + end) / 2;
         return <g key={entry.id}>
           {n === 1 ? <circle cx="200" cy="200" r="190" fill={COLORS[i % COLORS.length]} /> : <path d={`M200,200 L${point(start)} A190,190 0 ${360 / n > 180 ? 1 : 0} 1 ${point(end)} Z`} fill={COLORS[i % COLORS.length]} stroke="#ffffff80" strokeWidth="1" />}
-          {n <= 24 && <text transform={`translate(${point(mid, n > 12 ? 133 : 120).replace(',', ' ')}) rotate(${mid + 180})`} textAnchor="middle" dominantBaseline="middle" fontSize={n > 12 ? 10 : 15} fill="#203b34" fontWeight="600">{entry.label.length > 14 ? entry.label.slice(0, 12) + '…' : entry.label}</text>}
+          {n <= 24 && <text transform={`translate(${point(mid, n > 12 ? 133 : 120).replace(',', ' ')}) rotate(${mid + 180})`} textAnchor="middle" dominantBaseline="middle" fontSize={n > 12 ? 10 : 15} fill={WHEEL_PALETTE[i % WHEEL_PALETTE.length].text} fontWeight="600">{entry.label.length > 14 ? entry.label.slice(0, 12) + '…' : entry.label}</text>}
         </g>;
       })}
     </svg>
@@ -101,19 +101,19 @@ export default function App() {
 
   return <>
     <header className="site-header" inert={fullscreen}><div className="header-inner">
-      <a href="/" className="brand" aria-label="Roleta, início"><img src="/favicon.svg" width="35" height="35" alt="" />roleta<span>.</span></a>
+      <a href="/" className="brand" aria-label="LabTour — Roleta, início"><img className="labtour-logo" src="/labtour-logo.png" width="190" height="86" alt="LabTour" /><span className="brand-product">Roleta de sorteios</span></a>
       <span className="header-note"><span className="status-dot" />Um pouco de sorte, muitas possibilidades.</span>
       <a className="how-link" href="#como-funciona">Como funciona <Icon name="arrow" size={16} /></a>
     </div></header>
     <main>
-      <section className="intro" inert={fullscreen}><div className="eyebrow"><Icon name="spark" size={14} /> PARA DECIDIR SEM COMPLICAR</div>
+      <section className="intro" inert={fullscreen}><div className="eyebrow"><Icon name="spark" size={14} /> SORTEIOS LABTOUR</div>
         <h1>Deixe a <span>sorte</span> escolher.</h1>
         <p>Nomes, prêmios ou aquela decisão difícil. Adicione suas opções e dê um giro.</p>
       </section>
       <div className="workspace">
         <section ref={panel} className={`wheel-card${fullscreen ? ' is-fullscreen' : ''}`} aria-label="Sorteador" role={fullscreen ? 'dialog' : undefined} aria-modal={fullscreen ? true : undefined}>
           <Confetti celebrationId={winner?.id ?? null} />
-          <div className="card-top"><span className="section-label">SUA ROLETA</span><div className="wheel-tools"><span className="live-badge"><span className="status-dot" />{spinning ? 'Sorteando' : 'Tudo pronto'}</span><button ref={toggleButton} className="fullscreen-button" onClick={toggleFullscreen} aria-expanded={fullscreen}><Icon name={fullscreen ? 'collapse' : 'expand'} size={16} />{fullscreen ? 'Sair da tela cheia' : 'Tela cheia'}</button></div></div>
+          <div className="card-top"><img className="fullscreen-logo" src="/labtour-logo.png" width="120" height="54" alt="LabTour" /><span className="section-label">SUA ROLETA</span><div className="wheel-tools"><span className="live-badge"><span className="status-dot" />{spinning ? 'Sorteando' : 'Tudo pronto'}</span><button ref={toggleButton} className="fullscreen-button" onClick={toggleFullscreen} aria-expanded={fullscreen}><Icon name={fullscreen ? 'collapse' : 'expand'} size={16} />{fullscreen ? 'Sair da tela cheia' : 'Tela cheia'}</button></div></div>
           <Wheel entries={entries} rotation={rotation} spinning={spinning} duration={duration} />
           <div className="result" aria-live="polite" aria-atomic="true">
             {winner ? <><span className="result-caption">A SORTE ESCOLHEU</span><strong className="winner-label">{winner.label} <Icon name="spark" size={22} /></strong></> : <><strong>{spinning ? 'Quem será que vai ganhar?' : 'Sua próxima escolha está a um giro.'}</strong><span>{spinning ? 'Aguarde a roleta parar…' : 'Todas as opções têm a mesma chance.'}</span></>}
@@ -122,7 +122,7 @@ export default function App() {
           <p className="wheel-footnote">{entries.length < 2 ? 'Adicione pelo menos 2 opções para sortear.' : `${entries.length} opções · ${new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 }).format(100 / entries.length)}% de chance para cada uma`}</p>
         </section>
         <aside className="options-card" aria-labelledby="options-title" inert={fullscreen}>
-          <div className="options-heading"><div><h2 id="options-title">Suas opções <span className="count">{entries.length}</span></h2><p>Quem vai participar da rodada?</p></div><span className="little-spark" aria-hidden="true">✳</span></div>
+          <div className="options-heading"><div><h2 id="options-title">Suas opções <span className="count">{entries.length}</span></h2><p>Quem vai participar da rodada?</p></div><span className="little-spark" aria-hidden="true"><Icon name="spark" size={32} /></span></div>
           <form onSubmit={addEntries} className="add-form"><label className="sr-only" htmlFor="entry">Adicionar nomes ou prêmios</label><textarea id="entry" value={draft} onChange={e => setDraft(e.target.value)} placeholder="Digite nomes ou prêmios…" rows={2} disabled={spinning} /><div className="add-form-bottom"><span>Separe por vírgula ou linha.</span><button type="submit" className="add-button" disabled={spinning || !draft.trim()} aria-label="Adicionar opções"><Icon name="plus" size={18} />Adicionar</button></div></form>
           <p className="validation-message" role="status">{notice}</p>
           <div className="list-header"><span>PARTICIPANTES</span><button className="text-button" onClick={() => { setEntries([]); setWinner(null); setRotation(0); }} disabled={spinning || !entries.length}>Limpar lista</button></div>
@@ -139,6 +139,6 @@ export default function App() {
       </section>
       <section id="como-funciona" className="how-it-works" aria-label="Como funciona" inert={fullscreen}><div><span>01</span><p><strong>Adicione suas opções</strong>Nomes, prêmios ou ideias. Você escolhe.</p></div><div><span>02</span><p><strong>Dê um giro</strong>Uma chance igual para cada opção.</p></div><div><span>03</span><p><strong>Descubra o resultado</strong>Deixe a sorte resolver por você.</p></div></section>
     </main>
-    <footer inert={fullscreen}><a href="/" className="footer-brand">roleta.</a><p>Decisões mais leves. Feito para todo mundo.</p><span>Grátis e sem cadastro <Icon name="spark" size={14} /></span></footer>
+    <footer inert={fullscreen}><a href="/" className="footer-brand" aria-label="LabTour, início"><img src="/labtour-logo.png" width="116" height="52" alt="LabTour" /></a><p>Uma experiência LabTour. Deixe a sorte escolher.</p><span>Grátis e sem cadastro <Icon name="spark" size={14} /></span></footer>
   </>;
 }

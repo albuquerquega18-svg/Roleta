@@ -1,4 +1,4 @@
-# Roleta
+# Roleta LabTour
 
 Aplicação web de sorteios em português. Adicione nomes ou prêmios, gire a roleta e acompanhe os últimos 50 resultados. Todas as opções têm a mesma chance; entradas repetidas contam como participações separadas.
 
@@ -46,3 +46,7 @@ Se já tiver Chromium instalado, pode usar `PLAYWRIGHT_CHROMIUM_EXECUTABLE=/cami
 - `tests/roulette.spec.ts`: testes de interação no navegador.
 
 As fontes são distribuídas com a aplicação, sem serviços externos. O sorteio usa `crypto.getRandomValues`; rode em localhost ou em HTTPS. O projeto não tem contas, pagamentos ou sincronização entre dispositivos.
+
+## Identidade visual
+
+A logo em `public/labtour-logo.png` foi preparada com fundo transparente a partir da referência fornecida. Ela aparece no cabeçalho, rodapé e modo de tela cheia. A interface usa azul-marinho (`#0c2f5b`), turquesa (`#00b5ca`) e verde (`#42bd50`), com as variáveis de tema no início de `src/style.css`. A paleta da roleta e dos confetes fica em `src/roulette.ts`; os rótulos usam texto claro ou escuro conforme o setor.
