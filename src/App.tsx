@@ -114,7 +114,6 @@ export default function App() {
     <main>
       <section className="intro" inert={fullscreen}><div className="eyebrow"><Icon name="spark" size={14} /> SORTEIOS LABTOUR</div>
         <h1>Deixe a <span>sorte</span> escolher.</h1>
-        <p>No LabTour, a ciência inspira e a sorte surpreende. Adicione os participantes, gire a roleta e descubra quem vai ganhar!</p>
       </section>
       <div className="workspace">
         <section ref={panel} className={`wheel-card${fullscreen ? ' is-fullscreen' : ''}`} aria-label="Sorteador" role={fullscreen ? 'dialog' : undefined} aria-modal={fullscreen ? true : undefined}>
