@@ -79,8 +79,8 @@ export class RouletteAudio {
         const progress = time / duration;
         const remaining = duration - time;
         const accent = beat % 4 === 0 ? 1 : 0.7;
-        this.percussion(start + time, Math.min(0.11, remaining), (0.08 + progress * 0.08) * accent, 800, 'lowpass');
-        this.tone(start + time, 110, Math.min(0.13, remaining), 0.32 * accent, true);
+        this.percussion(start + time, Math.min(0.11, remaining), (0.16 + progress * 0.16) * accent, 800, 'lowpass');
+        this.tone(start + time, 110, Math.min(0.13, remaining), 0.64 * accent, true);
         time += 0.09 - progress * 0.06;
       }
     } catch {
